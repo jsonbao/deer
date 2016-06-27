@@ -33,7 +33,6 @@ class MyEnv(Environment):
         self._last_ponctual_observation = [0, 0] # At each time step, the observation is made up of two elements, each scalar
         
         self._random_state = rng
-                
         # Building a price signal with some patterns
         self._price_signal=[]
         for i in range (1000):
@@ -41,8 +40,11 @@ class MyEnv(Environment):
             price += self._random_state.uniform(0, 3)
             self._price_signal.extend(price.tolist())
        
-        self._price_signal_train = self._price_signal[:len(self._price_signal)//2]
-        self._price_signal_valid = self._price_signal[len(self._price_signal)//2:]
+        self._price_signal_train = self._price_signal[:len(self._price_signal)//2]+(self._random_state.rand(9*500))-0.5
+        self._price_signal_valid = np.array(self._price_signal[len(self._price_signal)//2:])
+        
+        #print np.array(self._price_signal[len(self._price_signal)//2:]).shape
+        #print (self._random_state.rand(9*500)).shape
         self._prices = None
         self._counter = 1
                 

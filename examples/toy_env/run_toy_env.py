@@ -21,8 +21,8 @@ class Defaults:
     # ----------------------
     # Experiment Parameters
     # ----------------------
-    STEPS_PER_EPOCH = 1000
-    EPOCHS = 50
+    STEPS_PER_EPOCH = 50
+    EPOCHS = 500
     STEPS_PER_TEST = 500
     PERIOD_BTW_SUMMARY_PERFS = 10
 
@@ -37,7 +37,7 @@ class Defaults:
     UPDATE_RULE = 'rmsprop'
     BATCH_ACCUMULATOR = 'sum'
     LEARNING_RATE = 0.0002
-    LEARNING_RATE_DECAY = 1.
+    LEARNING_RATE_DECAY = 0.998
     DISCOUNT = 0.9
     DISCOUNT_INC = 1.
     DISCOUNT_MAX = 0.99
@@ -52,7 +52,7 @@ class Defaults:
     REPLAY_MEMORY_SIZE = 1000000
     BATCH_SIZE = 32
     NETWORK_TYPE = "General_DQN_0"
-    FREEZE_INTERVAL = 1000
+    FREEZE_INTERVAL = 100
     DETERMINISTIC = True
 
 
@@ -158,6 +158,41 @@ if __name__ == "__main__":
         periodicity=2, 
         show_score=True,
         summarize_every=parameters.period_btw_summary_perfs))
+    
+    # We wish to discover, among all versions of our neural network (i.e., after every training epoch), which one 
+    # seems to generalize the better, thus which one has the highest validation score. However we also want to keep 
+    # track of a "true generalization score", the "test score". Indeed, what if we overfit the validation score ?
+    # To achieve these goals, one can use the FindBestController along two InterleavedTestEpochControllers, one for
+    # each mode (validation and test). It is important that the validationID and testID are the same than the id 
+    # argument of the two InterleavedTestEpochControllers (implementing the validation mode and test mode 
+    # respectively). The FindBestController will dump on disk the validation and test scores for each and every 
+    # network, as well as the structure of the neural network having the best validation score. These dumps can then
+    # used to plot the evolution of the validation and test scores (see below) or simply recover the resulting neural 
+    # network for your application.
+    # --- Create unique filename for FindBestController ---
+#    h = hash(vars(parameters), hash_name="sha1")
+#    fname = "MG2S_" + h
+#    print("The parameters hash is: {}".format(h))
+#    print("The parameters are: {}".format(parameters))
+#
+#    agent.attach(bc.FindBestController(
+#        validationID=0,#MG_two_storages_env.VALIDATION_MODE, 
+#        #testID=MG_two_storages_env.TEST_MODE,
+#        unique_fname=fname))
+    
+    
         
     # --- Run the experiment ---
     agent.run(parameters.epochs, parameters.steps_per_epoch)
+    
+#    # --- Show results ---
+#    basename = "scores/" + fname
+#    scores = load(basename + "_scores.jldump")
+#    plt.plot(range(1, len(scores['vs'])+1), scores['vs'], label="VS", color='b')
+#    #plt.plot(range(1, len(scores['ts'])+1), scores['ts'], label="TS", color='r')
+#    plt.legend()
+#    plt.xlabel("Number of epochs")
+#    plt.ylabel("Score")
+#    plt.savefig(basename + "_scores.pdf")
+#    plt.show()
+#
